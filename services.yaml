@@ -1,0 +1,14 @@
+services:
+  _defaults:
+    public: false
+    autowire: true
+
+  SiteZen\SiteZenOxid\Service\TokenServiceInterface:
+    class: SiteZen\SiteZenOxid\Service\TokenService
+    public: true
+    arguments:
+      - '@OxidEsales\EshopCommunity\Internal\Framework\Module\Facade\ModuleSettingServiceInterface'
+
+  SiteZen\SiteZenOxid\Controller\WebhookController:
+    class: SiteZen\SiteZenOxid\Controller\WebhookController
+    public: true
