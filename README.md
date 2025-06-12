@@ -1,17 +1,17 @@
 # SiteZen Module
 
-This module provides a webhook endpoint and allows configuration of a token for OXID eShop.
+This module provides a webhook endpoint for SiteZen.io and allows configuration of a token for OXID eShop.
 
 ## Features
 
 - Configuration setting to set and store a token string
-- Public webhook entry point that validates the token
+
 
 ## Installation
 
 1. Install the module via Composer:
    ```
-   composer require oxid-sales/sitezen
+   composer require sitezen/sitezen-oxid
    ```
 
 2. Activate the module in the OXID admin panel:
@@ -24,67 +24,12 @@ This module provides a webhook endpoint and allows configuration of a token for 
 1. Go to Extensions > Modules
 2. Find "SiteZen Module" in the list
 3. Click on "Settings"
-4. Enter your desired token in the "Webhook Token" field
+4. Enter your token as provided on SiteZen.io in the "Webhook Token" field
 5. Save the settings
 
 ## Usage
 
-The webhook endpoint is available at:
-```
-https://your-shop-url/?cl=webhook&token=your-token
-```
-
-### Request Format
-
-The webhook accepts JSON payloads. Send your data as a JSON object in the request body.
-
-Example:
-```
-POST /?cl=webhook&token=your-token HTTP/1.1
-Host: your-shop-url
-Content-Type: application/json
-
-{
-  "event": "order_created",
-  "data": {
-    "order_id": "12345",
-    "customer_id": "67890"
-  }
-}
-```
-
-### Response Format
-
-The webhook returns JSON responses:
-
-Success:
-```json
-{
-  "status": "success",
-  "message": "Webhook received successfully",
-  "received_data": {
-    "event": "order_created",
-    "data": {
-      "order_id": "12345",
-      "customer_id": "67890"
-    }
-  }
-}
-```
-
-Error:
-```json
-{
-  "status": "error",
-  "message": "Unauthorized"
-}
-```
-
-## Security
-
-- Always use a strong, unique token
-- The webhook endpoint requires a valid token for authentication
-- If no token is configured or the provided token doesn't match, the request will be rejected
+Enjoy! Now you can monitor your Oxid Application in SiteZen.io
 
 ## License
 
