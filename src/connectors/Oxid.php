@@ -47,6 +47,8 @@ class Oxid
             'version' => $version,
             'configuration' => $configParams,
             'plugins' => [],
+            ...self::systemInfo($config),
+
         ];
 
         return $result;
@@ -71,7 +73,7 @@ class Oxid
                 'email' => self::obfuscate_email($user->oxuser__oxusername->value),
                 'email_hash' => hash('sha256', trim(strtolower($user->oxuser__oxusername->value))),
                 'active' => (bool)$user->oxuser__oxactive->value,
-                'created_at' => $user->oxuser__oxcreate->value,
+                'created_at' => $user->oxuser__oxregister->value,
                 'updated_at' => $user->oxuser__oxtimestamp->value
             ];
         }
@@ -93,5 +95,32 @@ class Oxid
         $obfuscated_user = substr($user, 0, 2) . str_repeat('*', max(1, strlen($user) - 3)) . substr($user, -1);
 
         return $obfuscated_user . '@' . $domain;
+    }
+
+    static function systemInfo($config): array|string
+    {
+        // Create a SystemRequirements instance
+        $sysReq = oxNew(\OxidEsales\Eshop\Core\SystemRequirements::class);
+
+        // Get system requirements data
+        $systemInfo = $sysReq->getSystemInfo();
+
+        // Transform numeric status values (2) to boolean values (true)
+        $systemInfo = \OxidEsales\Eshop\Core\SystemRequirements::filter(
+            $systemInfo,
+            function ($groupId, $moduleId, $moduleState) {
+                // Convert status value 2 to boolean true
+                return $moduleState === 2 ? true : $moduleState;
+            }
+        );
+
+        // Get permission issues list to help diagnose server_permissions issues
+        $permissionIssues = $sysReq->getPermissionIssuesList();
+
+        return [
+            'system_info' => $systemInfo,
+            'config_not_writable' => is_writable(getShopBasePath() . "config.inc.php"),
+            'permission_issues' => $permissionIssues,
+        ];
     }
 }
