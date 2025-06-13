@@ -38,10 +38,10 @@ $aModule = [
         'en' => 'This module provides a webhook endpoint and allows configuration of a token',
     ],
     'thumbnail'   => 'logo.png',
-    'version'     => '1.0.0',
+    'version'     => '1.4.0',
     'author'      => 'SiteZen by MailBeez',
     'url'         => 'https:/sitezen.io',
-    'email'       => 'helpdesk@mailbeez.com',
+    'email'       => 'hello@sitezen.io',
     'settings'    => [
         [
             'group' => 'sitezen_settings',
@@ -51,6 +51,6 @@ $aModule = [
         ],
     ],
     'controllers' => [
-        'webhook' => \SiteZen\SiteZenOxid\Controller\WebhookController::class,
+        'sitezen' => \SiteZen\SiteZenOxid\Controller\WebhookController::class,
     ],
 ];

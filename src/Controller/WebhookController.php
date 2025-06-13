@@ -79,9 +79,7 @@ class WebhookController extends \OxidEsales\Eshop\Core\Controller\BaseController
         // Prevent any further template processing
         $this->_blIsComponent = false;
 
-
         $this->handleRequest();
-
 
         // This return is just to satisfy the method signature
         return '';
@@ -104,57 +102,8 @@ class WebhookController extends \OxidEsales\Eshop\Core\Controller\BaseController
         return $data ?? [];
     }
 
-    /**
-     * Send a success response
-     *
-     * @param array $data Response data
-     * @return string JSON response
-     */
-    protected function sendSuccessResponse(array $data): string
+    protected function handleRequest()
     {
-        return json_encode($data);
-    }
-
-    /**
-     * Send an error response
-     *
-     * @param string $message Error message
-     * @param int $statusCode HTTP status code
-     * @return string JSON response
-     */
-    protected function sendErrorResponse(string $message, int $statusCode = 400): string
-    {
-        // Set HTTP status code
-        Registry::getUtils()->setHeader("HTTP/1.1 " . $statusCode);
-
-        return json_encode([
-            'status' => 'error',
-            'message' => $message
-        ]);
-    }
-
-    /**
-     * Output JSON response and exit
-     *
-     * @param string $jsonResponse The JSON response string
-     * @return void
-     */
-    protected function outputJsonAndExit(string $jsonResponse): void
-    {
-        // Disable output buffering
-        while (ob_get_level()) {
-            ob_end_clean();
-        }
-
-        // Output the JSON response
-        echo $jsonResponse;
-
-        // Exit to prevent any further processing
-        exit();
-    }
-
-
-    protected function handleRequest() {
 
         ini_set('display_errors', 1);
         ini_set('display_startup_errors', 1);
@@ -163,16 +112,9 @@ class WebhookController extends \OxidEsales\Eshop\Core\Controller\BaseController
         define('SITEZEN_CONNECTOR_VERSION', '1.4.0');
         define('SITEZEN_CONNECTOR_TYPE', 'oxid');
 
-
         include __DIR__ . '/../Sitezen/Bootstrap/bootstrap.php';
         include __DIR__ . '/../connectors/Application.php';
         include __DIR__ . '/../connectors/Oxid.php';
-
-
-// locate env file and map env settings
-        $envFilePath = __DIR__  . '/data/.sitezen.env.php';
-
-
 
         $config = [
             'token' => $this->tokenService->getToken(),
@@ -185,9 +127,6 @@ class WebhookController extends \OxidEsales\Eshop\Core\Controller\BaseController
             'port' => Registry::getConfig()->getConfigParam('dbPort'),
             'socket' => Registry::getConfig()->getConfigParam('dbUnixSocket')
         ];
-
-        // Process the webhook request
-        $data = $this->getRequestData();
 
 // check gate
         Bootstrap\Gate::check($config);
