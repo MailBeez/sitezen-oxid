@@ -45,6 +45,7 @@ class Oxid
         $result = [
             'platform' => 'oxid',
             'version' => $version,
+            'is_cloud' => false,
             'configuration' => $configParams,
             'plugins' => [],
             ...self::systemInfo($config),
@@ -114,13 +115,54 @@ class Oxid
             }
         );
 
+        // Function to replace incorrect key names
+        $replaceKeys = function($source) {
+
+            $map = [
+                'j_son' => 'json',
+                'i_conv' => 'iconv',
+                'mb_string' => 'mbstring',
+                'bc_math' => 'bcmath',
+                'open_ssl' => 'openssl',
+                'php_xml' => 'dom',
+                'mysql_connect' => 'pdo_mysql',
+                'gd_info' => 'gd',
+            ];
+
+            $renamed = [];
+            foreach ($source as $key => $value) {
+                $renamed[$map[$key] ?? $key] = $value;   // fall back to old key if no map entry
+            }
+            return $renamed;
+
+        };
+
+        // Fix key names in php_config array
+        if (isset($systemInfo['php_config'])) {
+            $systemInfo['php_config'] = $replaceKeys($systemInfo['php_config']);
+        }
+
+        // Fix key names in php_extennsions array
+        if (isset($systemInfo['php_extennsions'])) {
+            $systemInfo['php_extennsions'] = $replaceKeys($systemInfo['php_extennsions']);
+        }
+
         // Get permission issues list to help diagnose server_permissions issues
         $permissionIssues = $sysReq->getPermissionIssuesList();
 
         return [
-            'system_info' => $systemInfo,
-            'config_not_writable' => is_writable(getShopBasePath() . "config.inc.php"),
-            'permission_issues' => $permissionIssues,
+            'system_info' => [
+                'server_configuration' => $systemInfo['server_config'],
+                'php_configuration' => $systemInfo['php_config'],
+                'php_extensions' => $systemInfo['php_extennsions'],
+                'security' => [
+                    'config_not_writable' => !is_writable(getShopBasePath() . "config.inc.php"),
+                ],
+                'files' => [
+                    'missing' => $permissionIssues['missing'],
+                    'not_writable' => $permissionIssues['not_writable'],
+                ]
+            ]
         ];
     }
 }
